@@ -7,8 +7,8 @@ class App:
 
     def __init__(self, root):
         root.title("My First Vocabulary Trainer")
-        root.minsize(1200, 600)
-        root.geometry("600x600+50+50")
+        root.minsize(1200, 400)
+        root.geometry("600x400+50+50")
         root.bind("<Return>", self.check_answer)  # Bind Enter key to check answer
 
         self.file_name = "A1_Vocabulaire.xlsx"
@@ -17,15 +17,16 @@ class App:
         self.filtered_df = pd.DataFrame()
         self.currentUnit = "ALL"
         self.current_word = ["", ""]  # Default empty list to avoid errors
-        self.current_word_index = -1  # Start at -1 to trigger first word
+        self.current_word_index = 0  # Start at -1 to trigger first word
         self.current_task_length = 0
+        self.current_score = 0
         
-        self.font_attributes = ("helvetica", 12, "bold")
+        self.font_attributes = ("helvetica", 14, "bold")
 
         # StringVars for dynamic text updates
         self.info_line = StringVar(value="Salut Nils! Let's learn some French")
         self.question_line = StringVar(value="What do you want to learn?")
-        self.stat_line = StringVar(value="This will be your stats")
+        self.stat_line = StringVar(value="This will be your SCORE")
 
         # Labels and Input Fields
         self.lbl_info = Label(root, textvariable=self.info_line, font=self.font_attributes, height=2)
@@ -58,13 +59,14 @@ class App:
         self.restart_button = Button(root, text="Restart", font=self.font_attributes, command=self.restart, width=10, height=1)
         self.restart_button.place(x=10, y=10)
         
-    def load_task(self, task_name):
+    def load_words(self, task_name):
         try:
             self.task_name = task_name
             self.df = pd.read_excel(self.file_name, sheet_name=task_name)
             self.df = self.df.dropna()  # Drop rows with NaN values
             
             self.df = self.df.sample(frac=1).reset_index(drop=True)
+            self.df["learnt_correct"] = False
         
             if self.df.empty:
                 self.info_line.set(f"No valid data found in {task_name}.")
@@ -77,12 +79,19 @@ class App:
             # Update the stat_line based on the filtered DataFrame
             self.info_line.set(f"Now learning {self.task_name}.")
             self.current_task_length = len(self.filtered_df)      
-            self.stat_line.set(f"Unit {self.currentUnit or 'ALL'}: {self.current_task_length} vocables available.")
             
-            self.show_exercise(task_name)
+            self.show_exercise(task_name, self.current_word_index)
                     
         except Exception as e:
             self.info_line.set(f"Error loading task: {e}")
+            
+            
+    def set_task(self, event):
+        task_name = self.dropdown_task_var.get()
+        self.load_words(task_name)
+        self.current_task_length = len(self.filtered_df)
+
+            
             
     def set_unit(self, event=None):
         try:
@@ -104,51 +113,69 @@ class App:
             # Update the stat_line based on the filtered DataFrame
             if self.filtered_df.empty:
                 self.stat_line.set(f"Unit {self.currentUnit}: No exercises found.")
+                self.question_line.set("none")
             else:
-                self.stat_line.set(f"Unit {self.currentUnit}: {len(self.filtered_df)} words available.")
+                self.stat_line.set(f"Unit {self.currentUnit}: You have {self.current_score} from {len(self.filtered_df)} words correct.")
             
             # Call show_exercise again to display the next item
-            self.show_exercise(self.task_name)
+            self.show_exercise(self.task_name, self.current_word_index)
                 
         except ValueError as ve:
-            self.question_line.set(f"NO EXERCISES IN THIS UNIT")
+            self.question_line.set(f"NO EXERCISES LOADED")
         except KeyError as ke:
             self.question_line.set(f"NO EXERSICES IN THIS UNIT")  
-
-    def set_task(self, event):
-        task_name = self.dropdown_task_var.get()
-        if task_name in ["les verbes", "les noms", "les adjectifs", "les adverbs", "les prépositions", "les phrases"]:
-            self.load_task(task_name)
-        else:
-            self.info_line.set("Error: Invalid task selection")
+    
                                               
-    def show_exercise(self, task_name):
-        self.current_word = list(util.create_exercise(self.filtered_df, task_name))  # Store word
-        self.question_line.set(self.current_word[0])  # Show question
+    def show_exercise(self, task_name, current_word_index):
+                    
+        if task_name == "les verbes":
+            current_exercise = util.exercise_verbes(self.filtered_df, current_word_index)
+        elif task_name == "les noms":
+            current_exercise = util.exercise_noms(self.filtered_df, current_word_index)
+        elif task_name == "les adjectifs":
+            current_exercise = util.exercise_adjectifs(self.filtered_df)
+        elif task_name == "les adverbs":
+            current_exercise = util.exercise_adverbs(self.filtered_df)    
+        elif task_name == "les prépositions":
+            current_exercise = util.exercise_prep(self.filtered_df, current_word_index)
+        elif task_name == "les phrases":
+            current_exercise = util.exercise_phrases(self.filtered_df)
+            
+        else:
+            current_exercise = None
+            
+        self.current_word = list(current_exercise)  # Store word
+        self.question_line.set(self.current_word[0])  # Show question      
+
         
     def check_answer(self, event=None):
         user_answer = self.lbl_answer.get().strip()  # Get user input
         correct_answer = self.current_word[1]  # Correct answer from stored word
+        self.current_word_index += 1
 
         if user_answer.lower() == correct_answer.lower():  # Case insensitive check
             self.info_line.set("✅ Correct!")
+            self.current_score += 1
+            self.stat_line.set(f"Unit {self.currentUnit}: You have {self.current_score} from {len(self.filtered_df)} words correct.")
             self.lbl_answer.delete(0, END)  # Clear input field
-            self.show_exercise(self.task_name)  # Move to next word
+            self.show_exercise(self.task_name, self.current_word_index)  # Move to next word
         else:
             self.info_line.set(f"❌ the correct word is: {correct_answer}")
             self.lbl_answer.delete(0, END)
-            self.show_exercise(self.task_name)
+            self.show_exercise(self.task_name, self.current_word_index)
 
     def restart(self):
         self.question_line.set("What do you want to learn?")
-        self.stat_line.set("This will be your df.stats")
+        self.stat_line.set("This will be your SCORE")
         self.info_line.set("Salut Nils! Let's learn some French")
         self.df = pd.DataFrame()
         self.filtered_df = pd.DataFrame()
         self.dropdown_task_var.set("choose an exercise")
-        self.dropdown_unit_var.set("choose a unit")
+        self.dropdown_unit_var.set("ALL")
         self.lbl_answer.delete(0, END)
-
+        self.current_score = 0
+        
+        
 if __name__ == "__main__":
     root = Tk()
     app = App(root)

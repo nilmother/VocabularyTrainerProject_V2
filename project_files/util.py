@@ -17,85 +17,55 @@ import unicodedata
 #         }
 #     return pronom_dict[pronom]
 
-def exercise_verbes(df):
+def exercise_verbes(df, index):
     current_dict = df.to_dict('list')
-    current_int = 1
+    current_int = index
     current_verb = current_dict["INFINITIF"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     return [current_translation, current_verb]
 
 
-def exercise_noms(df):
+def exercise_noms(df, index):
     current_dict = df.to_dict('list')
-    current_int = 1
+    current_int = index
     current_nom = current_dict["FRENCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     current_article = current_dict["ARTICLE"][current_int]
     current_answer = current_article + " " + current_nom
-    print(current_dict)
     return [current_translation, current_answer]
 
 
-def exercise_adjectifs(df):
+def exercise_adjectifs(df, index):
     current_dict = df.to_dict('list')
-    current_int = 1
+    current_int = index
     current_adjectif = current_dict["DEUTSCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     return [current_translation, current_adjectif]
 
 
-def exercise_adverbs(df):
+def exercise_adverbs(df, index):
     current_dict = df.to_dict('list')
-    current_int = 1
+    current_int = index
     current_adverb = current_dict["DEUTSCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     return [current_translation, current_adverb]
 
 
-def exercise_prep(df):
+def exercise_prep(df, index):
     current_dict = df.to_dict('list')
-    current_dict["learnt_correct"] = [False] * len(current_dict["DEUTSCH"])
-    current_int = 1
+    current_int = index
     current_prep = current_dict["FRENCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
-    
-    print(current_dict)
-    return [current_translation, current_prep]
+    learnt_correct = current_dict["learnt_correct"][current_int]
+    return [current_translation, current_prep, learnt_correct]
 
 
-def exercise_phrases(df):
+def exercise_phrases(df, index):
     current_dict = df.to_dict('list')
-    current_int = 1
+    current_int = index
     current_phrase = current_dict["FRENCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     return [current_translation, current_phrase]
-
-
-def create_exercise(df, task_name):
-    if task_name == "les verbes":
-        current_exercise = exercise_verbes(df)
-    elif task_name == "les noms":
-        current_exercise = exercise_noms(df)
-    elif task_name == "les adjectifs":
-        current_exercise = exercise_adjectifs(df)
-    elif task_name == "les adverbs":
-        current_exercise = exercise_adverbs(df)    
-    elif task_name == "les prépositions":
-        current_exercise = exercise_prep(df)
-    elif task_name == "les phrases":
-        current_exercise = exercise_phrases(df)
-        
-    else:
-        current_exercise = None
-        
-    return current_exercise
-
-
-
-
-
-
-
 
 
 
