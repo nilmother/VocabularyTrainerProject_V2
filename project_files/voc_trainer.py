@@ -3,9 +3,6 @@ from tkinter import *
 from tkinter import ttk
 import util
 
-# Example usage
-file_name = "A1_Vocabulaire.xlsx"  # Replace with the path to your file
-
 class App:
 
     def __init__(self, root):
@@ -14,12 +11,14 @@ class App:
         root.geometry("600x600+50+50")
         root.bind("<Return>", self.check_answer)  # Bind Enter key to check answer
 
+        self.file_name = "A1_Vocabulaire.xlsx"
+
         self.df = pd.DataFrame()
         self.filtered_df = pd.DataFrame()
         self.currentUnit = "ALL"
         self.current_word = ["", ""]  # Default empty list to avoid errors
         self.current_word_index = -1  # Start at -1 to trigger first word
-        self.current_task_lenght = 0
+        self.current_task_length = 0
         
         self.font_attributes = ("helvetica", 12, "bold")
 
@@ -46,14 +45,14 @@ class App:
         task_options = ["les verbes", "les noms", "les adjectifs", "les adverbs", "les prépositions", "les phrases"]
         self.dropdown_tasks = ttk.Combobox(root, textvariable=self.dropdown_task_var, values=task_options, state="readonly")
         self.dropdown_tasks.place(y=60, x=10)
-        self.dropdown_tasks.bind("<<ComboboxSelected>>", self.change_task)
+        self.dropdown_tasks.bind("<<ComboboxSelected>>", self.set_task)
 
         # Dropdown for units
         self.dropdown_unit_var = StringVar(value="ALL")
         unit_options = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "ALL"]
         self.dropdown_units = ttk.Combobox(root, textvariable=self.dropdown_unit_var, values=unit_options, state="readonly")
         self.dropdown_units.place(y=90, x=10)
-        self.dropdown_units.bind("<<ComboboxSelected>>", self.change_unit)
+        self.dropdown_units.bind("<<ComboboxSelected>>", self.set_unit)
 
         # Restart Button
         self.restart_button = Button(root, text="Restart", font=self.font_attributes, command=self.restart, width=10, height=1)
@@ -62,31 +61,30 @@ class App:
     def load_task(self, task_name):
         try:
             self.task_name = task_name
-            self.df = util.load_file(self.task_name)
-
-            # Filter for the current unit if it's set
-            if self.currentUnit is not None and self.currentUnit != "ALL":
-                if self.df.empty:
-                    raise ValueError("Data is not loaded. Please select a task first.")
-                if "UNIT" not in self.df.columns:
-                    raise KeyError("The column 'UNIT' does not exist in the DataFrame.")
-                    
-                self.filtered_df = self.df[self.df["UNIT"] == self.currentUnit]
-            else:
-                self.filtered_df = self.df  # No filtering needed for "ALL"
-                
-            self.filtered_df = self.filtered_df.sample(frac=1).reset_index(drop=True)
-            self.show_exercise(task_name)
+            self.df = pd.read_excel(self.file_name, sheet_name=task_name)
+            self.df = self.df.dropna()  # Drop rows with NaN values
             
+            self.df = self.df.sample(frac=1).reset_index(drop=True)
+        
+            if self.df.empty:
+                self.info_line.set(f"No valid data found in {task_name}.")
+                return None
+            
+            print("Vocabulary loaded successfully!")
+        
+            self.set_unit()   
+                        
             # Update the stat_line based on the filtered DataFrame
             self.info_line.set(f"Now learning {self.task_name}.")
-            self.current_task_lenght = len(self.filtered_df)      
-            self.stat_line.set(f"Unit {self.currentUnit or 'ALL'}: {self.current_task_lenght} vocables available.")
+            self.current_task_length = len(self.filtered_df)      
+            self.stat_line.set(f"Unit {self.currentUnit or 'ALL'}: {self.current_task_length} vocables available.")
+            
+            self.show_exercise(task_name)
                     
         except Exception as e:
             self.info_line.set(f"Error loading task: {e}")
             
-    def change_unit(self, event=None):
+    def set_unit(self, event=None):
         try:
             selected_unit = self.dropdown_unit_var.get()
             
@@ -117,7 +115,7 @@ class App:
         except KeyError as ke:
             self.question_line.set(f"NO EXERSICES IN THIS UNIT")  
 
-    def change_task(self, event):
+    def set_task(self, event):
         task_name = self.dropdown_task_var.get()
         if task_name in ["les verbes", "les noms", "les adjectifs", "les adverbs", "les prépositions", "les phrases"]:
             self.load_task(task_name)

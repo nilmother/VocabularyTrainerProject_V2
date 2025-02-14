@@ -1,7 +1,5 @@
 import pandas as pd
-import random
 import unicodedata
-from voc_trainer import file_name
 
 # for the functionality of les verbes
 
@@ -18,24 +16,6 @@ from voc_trainer import file_name
 #         9:["3P.P.f", "Elles", "Sie[pl.w]"],
 #         }
 #     return pronom_dict[pronom]
-
-
-def load_file(task_name):
-    try:
-        df = pd.read_excel(file_name, sheet_name=task_name)
-        df_reduced = df.dropna()  # Drop rows with NaN values
-        print("Vocabulary loaded successfully!")
-        
-        if df_reduced.empty:
-            print(f"No valid data found in {task_name}.")
-            return None
-        return df_reduced
-    except Exception as e:
-        print(f"Error loading file: {e}")
-        return None
-
-
-
 
 def exercise_verbes(df):
     current_dict = df.to_dict('list')
