@@ -14,10 +14,9 @@ class App:
         root.geometry("600x600+50+50")
         root.bind("<Return>", self.check_answer)  # Bind Enter key to check answer
 
-
         self.df = pd.DataFrame()
         self.filtered_df = pd.DataFrame()
-        self.currentUnit = None
+        self.currentUnit = "ALL"
         self.current_word = ["", ""]  # Default empty list to avoid errors
         self.current_word_index = -1  # Start at -1 to trigger first word
         self.current_task_lenght = 0
@@ -75,7 +74,8 @@ class App:
                 self.filtered_df = self.df[self.df["UNIT"] == self.currentUnit]
             else:
                 self.filtered_df = self.df  # No filtering needed for "ALL"
-            
+                
+            self.filtered_df = self.filtered_df.sample(frac=1).reset_index(drop=True)
             self.show_exercise(task_name)
             
             # Update the stat_line based on the filtered DataFrame
@@ -107,7 +107,7 @@ class App:
             if self.filtered_df.empty:
                 self.stat_line.set(f"Unit {self.currentUnit}: No exercises found.")
             else:
-                self.stat_line.set(f"Unit {self.currentUnit}: {len(self.filtered_df)} exercises available.")
+                self.stat_line.set(f"Unit {self.currentUnit}: {len(self.filtered_df)} words available.")
             
             # Call show_exercise again to display the next item
             self.show_exercise(self.task_name)

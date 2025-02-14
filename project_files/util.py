@@ -39,7 +39,7 @@ def load_file(task_name):
 
 def exercise_verbes(df):
     current_dict = df.to_dict('list')
-    current_int = random.randint(0, len(current_dict["INFINITIF"])-1)
+    current_int = 1
     current_verb = current_dict["INFINITIF"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     return [current_translation, current_verb]
@@ -47,17 +47,18 @@ def exercise_verbes(df):
 
 def exercise_noms(df):
     current_dict = df.to_dict('list')
-    current_int = random.randint(0, len(current_dict["DEUTSCH"])-1)
+    current_int = 1
     current_nom = current_dict["FRENCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     current_article = current_dict["ARTICLE"][current_int]
     current_answer = current_article + " " + current_nom
+    print(current_dict)
     return [current_translation, current_answer]
 
 
 def exercise_adjectifs(df):
     current_dict = df.to_dict('list')
-    current_int = random.randint(0, len(current_dict["DEUTSCH"])-1)
+    current_int = 1
     current_adjectif = current_dict["DEUTSCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     return [current_translation, current_adjectif]
@@ -65,7 +66,7 @@ def exercise_adjectifs(df):
 
 def exercise_adverbs(df):
     current_dict = df.to_dict('list')
-    current_int = random.randint(0, len(current_dict["DEUTSCH"])-1)
+    current_int = 1
     current_adverb = current_dict["DEUTSCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     return [current_translation, current_adverb]
@@ -73,15 +74,18 @@ def exercise_adverbs(df):
 
 def exercise_prep(df):
     current_dict = df.to_dict('list')
-    current_int = random.randint(0, len(current_dict["DEUTSCH"])-1)
+    current_dict["learnt_correct"] = [False] * len(current_dict["DEUTSCH"])
+    current_int = 1
     current_prep = current_dict["FRENCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
+    
+    print(current_dict)
     return [current_translation, current_prep]
 
 
 def exercise_phrases(df):
     current_dict = df.to_dict('list')
-    current_int = random.randint(0, len(current_dict["DEUTSCH"])-1)
+    current_int = 1
     current_phrase = current_dict["FRENCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     return [current_translation, current_phrase]
@@ -105,6 +109,8 @@ def create_exercise(df, task_name):
         current_exercise = None
         
     return current_exercise
+
+
 
 
 
