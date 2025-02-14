@@ -5,22 +5,22 @@ from voc_trainer import file_name
 
 # for the functionality of les verbes
 
-def get_pronom(pronom):
-    pronom_dict = {
-        1:["1P.S", "Je", "Ich"],
-        2:["2P.S", "Tu", "Du"],
-        3:["3P.S.m", "Il", "Er"],
-        4:["3P.S.f", "Elle", "Sie"],
-        5:["3P.S.b", "On", "Man"],
-        6:["1P.P", "Nous", "Wir"],  
-        7:["2P.P", "Vous", "Ihr"],
-        8:["3P.P.m", "Ils", "Sie[pl.m]"],
-        9:["3P.P.f", "Elles", "Sie[pl.w]"],
-        }
-    return pronom_dict[pronom]
+# def get_pronom(pronom):
+#     pronom_dict = {
+#         1:["1P.S", "Je", "Ich"],
+#         2:["2P.S", "Tu", "Du"],
+#         3:["3P.S.m", "Il", "Er"],
+#         4:["3P.S.f", "Elle", "Sie"],
+#         5:["3P.S.b", "On", "Man"],
+#         6:["1P.P", "Nous", "Wir"],  
+#         7:["2P.P", "Vous", "Ihr"],
+#         8:["3P.P.m", "Ils", "Sie[pl.m]"],
+#         9:["3P.P.f", "Elles", "Sie[pl.w]"],
+#         }
+#     return pronom_dict[pronom]
 
 
-def load_data(task_name):
+def load_file(task_name):
     try:
         df = pd.read_excel(file_name, sheet_name=task_name)
         df_reduced = df.dropna()  # Drop rows with NaN values
@@ -33,7 +33,6 @@ def load_data(task_name):
     except Exception as e:
         print(f"Error loading file: {e}")
         return None
-
 
 
 
@@ -52,7 +51,8 @@ def exercise_noms(df):
     current_nom = current_dict["FRENCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     current_article = current_dict["ARTICLE"][current_int]
-    return [current_translation, current_nom, current_article]
+    current_answer = current_article + " " + current_nom
+    return [current_translation, current_answer]
 
 
 def exercise_adjectifs(df):
@@ -104,7 +104,7 @@ def create_exercise(df, task_name):
     else:
         current_exercise = None
         
-    return [current_exercise]
+    return current_exercise
 
 
 
@@ -113,7 +113,7 @@ def create_exercise(df, task_name):
 
 
 
-# STUFF FOR VOCABULARY
+# STUFF FOR VERBS
 
 
     # def show_next_exercise(self):
