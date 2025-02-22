@@ -25,38 +25,37 @@ def exercise_verbes(df, index):
     return [current_translation, current_verb]
 
 
-def exercise_noms(df, index):
-    current_dict = df.to_dict('list')
-    current_int = index
-    current_nom = current_dict["FRENCH"][current_int] 
-    current_translation = current_dict["DEUTSCH"][current_int]
-    current_article = current_dict["ARTICLE"][current_int]
+def exercise_noms(df, current_int):
+    
+    while current_int < len(df) and df.at[current_int, "learnt_correct"] == True:
+        current_int = current_int + 1
+
+    current_nom = df.at[current_int, "FRENCH"]
+    current_translation = df.at[current_int, "DEUTSCH"]
+    current_article = df.at[current_int, "ARTICLE"]
     current_answer = current_article + " " + current_nom
     return [current_translation, current_answer]
 
 
-def exercise_adjectifs(df, index):
-    current_dict = df.to_dict('list')
-    current_int = index
-    current_adjectif = current_dict["DEUTSCH"][current_int] 
-    current_translation = current_dict["DEUTSCH"][current_int]
+
+def exercise_adjectifs(df, current_int):
+    current_adjectif = df.at[current_int, "FRENCH"]
+    current_translation = df.at[current_int, "DEUTSCH"]
     return [current_translation, current_adjectif]
 
 
 def exercise_adverbs(df, index):
     current_dict = df.to_dict('list')
     current_int = index
-    current_adverb = current_dict["DEUTSCH"][current_int] 
+    current_adverb = current_dict["FRENCH"][current_int] 
     current_translation = current_dict["DEUTSCH"][current_int]
     return [current_translation, current_adverb]
 
 
-def exercise_prep(df, index):
-    current_dict = df.to_dict('list')
-    current_int = index
-    current_prep = current_dict["FRENCH"][current_int] 
-    current_translation = current_dict["DEUTSCH"][current_int]
-    learnt_correct = current_dict["learnt_correct"][current_int]
+def exercise_prep(df, current_int): 
+    current_prep = df.at[current_int, "FRENCH"] 
+    current_translation = df.at[current_int, "DEUTSCH"]
+    learnt_correct = df.at[current_int, "learnt_correct"]
     return [current_translation, current_prep, learnt_correct]
 
 
